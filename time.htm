@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .main{ font-family: 'Segoe UI Light';}
+    div {font-size: 300%; display:inline;}
+    .but {font-size: 200%;  font-family: 'Segoe UI Light'; }
+    .good {color: green; border-color: green;}
+    .bad {color : red; border-color: red; }
+    .activ {border-width: 2px; border-style: solid;} 
+    .deactiv{border-width: 0px;}
+    .mini{font-size: 20%;}
+  </style>
+<meta charset=utf-8 />
+<title>Time</title>
+  <script>
+    // возвращает cookie с именем name, если есть, если нет, то undefined
+  function getCookie(name) {
+    var matches = document.cookie.match(new RegExp(
+      "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : 0;
+  }
+
+    
+    
+    TITLETIME = 600;
+
+    var DIE =new Date(2043, 5, 11, 6, 0, 0);
+
+    var NOW =new Date();
+    var diffToDie = (DIE - NOW);
+    i = 0;
+    tm = 0;
+    ii = 0;
+    times = [0, 0]; var sum = 0;
+    var timers = [];
+    
+    
+    
+    
+    function discard() {
+      setSave(0,0);
+      times = [0,0];
+    }
+    
+    function init() {
+      timers[0] = document.getElementById("timer1");
+      timers[1] = document.getElementById("timer2");
+      timers[2] = document.getElementById("timer3");
+      timers[3] = document.getElementById("timer4");
+      getSave();
+      timers[i].className = "activ"; 
+    }
+    
+    function getDiff(a,b) {
+      diff = 0;
+      tm++;
+      if (a<b) {
+        document.getElementById("timer3").className = "good"; 
+        diff=b-a;
+        //document.title = "good:" + secToString(diff);
+      } else {
+        document.getElementById("timer3").className = "bad"; 
+        diff = a-b;
+        //document.title = "bad:" + secToString(diff);
+      } 
+      if (tm >= TITLETIME) { tm = 0;
+        document.title = document.getElementById("timer3").className + ":" + secToString(diff);
+      }
+      document.getElementById("timer3").innerHTML = secToString(diff);      
+    }
+    
+    
+    function secToString(p) {
+      result = p % 60; p = (p/60)|0;
+      result = p % 60 + ":" + result; p = (p/60)|0;
+      result = p % 60 + ":" + result; p = (p/60)|0;
+      return result;
+    }
+    function changeI() { 
+      timers[i].className = "deactiv"; 
+      i = (i+1) % 2;  
+      timers[i].className = "activ"; 
+    }
+
+    function getDieTime() {
+      diffToDie-=1000; 
+      //document.getElementById("die").innerHTML = diffToDie;
+      var diff = diffToDie;
+      
+      diff = diff / 1000;
+      s = diff % 60; diff = diff / 60;
+      m = diff % 60; diff = diff / 60;
+      h = diff % 24; diff = diff / 24;
+      d = diff % 365; diff = diff / 365;
+      //mn = diff % 12; diff = diff / 12;
+      y = diff; 
+      
+      s = s|0;
+      m = m|0;
+      h = h|0;
+      d = d|0;
+      y = y|0;
+      
+      return y + "<sup class='mini'>y</sup>:" + d + "<sup class='mini'>d</sup>:" + h + "<sup class='mini'>h</sup>:" + m + "<sup class='mini'>m</sup>:" + s + "<sup class='mini'>s</sup>";
+      
+    }
+    function getSave(){
+      times[0]=getCookie("bad")|0;
+      times[1]=getCookie("good")|0;
+      if (isNaN(times[0]) || isNaN(times[1])) times = [0, 0];
+    }
+    
+    function setSave(a,b){
+      var date = new Date;
+      date.setDate( date.getDate() + 1000 );
+      document.cookie = "bad="  + a + "; expires=" + date.toUTCString();
+      document.cookie = "good=" + b + "; expires=" + date.toUTCString();
+    }
+    
+
+    function startStop() { 
+      times[i]++;
+      
+      //i = 0;
+      sum = times[0] + times[1];
+      
+      timers[0].innerHTML = secToString(times[0]);
+      timers[1].innerHTML = secToString(times[1]);
+      timers[3].innerHTML = secToString(sum);
+      document.getElementById("procentgood").innerHTML = (times[1]/sum * 100).toFixed(0) + "%";
+      document.getElementById("procentbad").innerHTML = (times[0]/sum * 100).toFixed(0) + "%";
+      getDiff(times[0],times[1]);
+      
+      setSave(times[0],times[1]); 
+      
+      //document.getElementById("die").innerHTML = 
+      document.getElementById("die").innerHTML = getDieTime();
+      
+      setTimeout(startStop, 1000);
+      
+      //document.getElementById("info").innerHTML = document.cookie;
+    }
+    
+  </script>
+  
+</head>
+  <body onload='javascript:init(); startStop();' class="main">
+  <center>
+    <font color="red"><div id="timer1"> </div></font><br>
+    <font color="green"><div id="timer2"> </div></font><br>
+    <button onclick="changeI();" class="but">Change</button><br>
+    <div id="timer3" class="bad"> </div><br>
+    <div id="timer4"> </div><br>
+    <div id="procentgood" class="good"></div><div> / </div><div id="procentbad" class="bad"></div><br><br>
+    
+    <button onclick="discard();" style=" font-family: 'Segoe UI Light';">Discard</button><br>
+    <div id="die"> </div>
+    </center>
+</body>
+</html>
